@@ -1,49 +1,44 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+//alpha vantage api key 6KFEPWZX4P58N7VR
+
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import moment from 'moment';
 import './App.css'
-
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import HighchartsStk from "highcharts/highstock";
-
-//alpha vantage api key 6KFEPWZX4P58N7VR
-
-
-// The wrapper exports only a default component that at the same time is a
-// namespace for the related Props interface (HighchartsReact.Props) and
-// RefObject interface (HighchartsReact.RefObject). All other interfaces
-// like Options come from the Highcharts module itself.
-
+import Watchlist from './Watchlist';
 
 interface ApiRes {
     "Time Series (Daily)": any
 }
 
-const numberFormat = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0});
+const App = (props: HighchartsReact.Props) => {
+  const [data, setData] = useState<[number, number][]>([])
+  const [currentStock, setCurrentStock] = useState<string>("");
+  const [watchListItems, setWatchListItems] = useState<[string, number, string, string][]>([["AAPL", -1, '0', '0']])
+  const inputRef = useRef<HTMLInputElement>(null);
+  const watchListRef = useRef<HTMLInputElement>(null);
+  const numberFormat = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0});
+const APIKEY = '6KFEPWZX4P58N7VR'
 
-
-const getData = async (ticker:string):Promise<[number, number][]> => {
-  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${ticker}&outputsize=full&apikey=6KFEPWZX4P58N7VR`
+const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number, number][]> => {
+  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${ticker}&outputsize=${size}&apikey=${APIKEY}`
   try {
     const res = await fetch(url)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const json:ApiRes = await res.json();
     const returnedData: [number, number][] = []
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const keys = Object.keys(json["Time Series (Daily)"]);
     for (let i = keys.length - 1; i >= 0; i--){
       const dateObject = new Date(keys[i]);
       const timestamp = Math.floor(dateObject.getTime());
-
-      // console.log("keys: ", json["Time Series (Daily)"][keys[i]]["4. close"])
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
       returnedData.push([timestamp, parseFloat(json["Time Series (Daily)"][keys[i]]["4. close"])])
     }
     return returnedData;
@@ -52,30 +47,49 @@ const getData = async (ticker:string):Promise<[number, number][]> => {
     console.log("Caught error: ", e)
     return []
   }
-
 }
 
-// const ibmdata = await getData("IBM");
+  const updateStockChart = async (ticker:string)=>{
+    const data = await getData(ticker, 'full');
+    console.log("setting data as ", data)
+    setData(data);
+    setCurrentStock(ticker)
+  }
 
+  const addToWatchList = async () => {
+    const stock = watchListRef.current!.value.toUpperCase();
+    const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(stock);
+    setWatchListItems([...watchListItems, [stock, lastPrice, amountChangeStr, percentChangeStr]])
+  }
 
+  const removeFromWatchlist = (stock:string): void => {
+    const newItems = watchListItems.filter(item => item[0] !== stock.toUpperCase())
+    console.log("watchlistitems", newItems)
+    setWatchListItems([...newItems])
+  }
 
-
-// React supports function components as a simple way to write components that
-// only contain a render method without any state (the App component in this
-// example).
-
-const App = (props: HighchartsReact.Props) => {
-  const [data, setData] = useState<[number, number][]>([])
-  const inputRef = useRef(null);
+  const getStockWatchListData = async (ticker: string): Promise<[number, string, string]> =>{
+    const data = await getData(ticker, 'compact')
+    const lastPrice = data[data.length - 1][1]
+    const secondLastPrice = data[data.length - 2][1]
+    const amountChange = parseFloat((lastPrice - secondLastPrice).toFixed(2))
+    const amountChangeStr = amountChange >= 0 ? `+${amountChange}` : `${amountChange}`
+    const percentChange = parseFloat((amountChange / secondLastPrice * 100).toFixed(2))
+    const percentChangeStr = percentChange >= 0 ? `(+${percentChange}%)` : `(${percentChange}%)`
+    return [lastPrice, amountChangeStr, percentChangeStr]
+  }
 
   useEffect(()=>{
-    const fetchData = async ()=>{
-      const data = await getData("IBM");
-      console.log("setting data as ", data)
-      setData(data);
-    }
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    // fetchData()
+    const updateWatchListData = async() => {
+      for (let i = 0; i < watchListItems.length; i++){
+        const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(watchListItems[i][0])
+        watchListItems[i][1] = lastPrice
+        watchListItems[i][2] = amountChangeStr
+        watchListItems[i][3] = percentChangeStr
+      }
+      setWatchListItems([...watchListItems])
+  }
+  updateWatchListData()
   }, [])
 
   const options: Highcharts.Options = {
@@ -84,18 +98,11 @@ const App = (props: HighchartsReact.Props) => {
       width: 600
     },
     yAxis: [{
-      opposite: false,
-      // offset: 50,
-  
+      opposite: false,  
       labels: {
         formatter: function (this) {
           return numberFormat.format(this.value as number) 
         },
-        // x: 0,
-        // style: {
-        //   "color": "#000", "position": "absolute"
-        // },
-        // align: 'left'
       },
     },
     ],
@@ -111,12 +118,11 @@ const App = (props: HighchartsReact.Props) => {
     tooltip: {
       shared: true,
       formatter: function (this) {
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         return numberFormat.format(this.y as number) +  '</b><br/>' + moment(this.x).format('MMMM Do YYYY, h:mm')
       }
     },
       title: {
-          text: 'My chart'
+          text: currentStock
       },
       legend: {
         enabled: true
@@ -170,13 +176,11 @@ const App = (props: HighchartsReact.Props) => {
 
   return (
   <div className='container'>
-
-  <div className='watchlist'>
-    <h2>Watchlist</h2>
-    <div className='watchlistItem'>AAPL</div>
-    <div className='watchlistItem'>GOOG</div>
-    <div className='watchlistItem'>IBM</div>
-  </div>
+    <Watchlist watchListRef={watchListRef}
+    addToWatchList={addToWatchList}
+    watchListItems={watchListItems}
+    updateStockChart={updateStockChart}
+    removeFromWatchList={removeFromWatchlist}></Watchlist>
 
   <div className='chartContainer'>
   <form>
@@ -184,12 +188,7 @@ const App = (props: HighchartsReact.Props) => {
     <input ref={inputRef} placeholder='IBM'></input>
     <input type='submit' onClick={(e)=>{
       e.preventDefault()
-      const fetchData = async ()=>{
-        const data = await getData(inputRef.current!.value);
-        console.log("setting data as ", data)
-        setData(data);
-      }
-      fetchData()
+      updateStockChart(inputRef.current!.value)
       }}></input>
   </form>
     <HighchartsReact
@@ -199,10 +198,8 @@ const App = (props: HighchartsReact.Props) => {
       ref={chartComponentRef}
       {...props}
     />
-
   </div>
-  
-    </div>
+  </div>
   );
 };
 
