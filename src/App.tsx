@@ -6,8 +6,9 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 //alpha vantage api key 6KFEPWZX4P58N7VR
+// Second api key TN4REAKJA1FP8L3N
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import moment from 'moment';
 import './App.css'
 import { useRef } from 'react';
@@ -23,14 +24,14 @@ interface ApiRes {
 const App = (props: HighchartsReact.Props) => {
   const [data, setData] = useState<[number, number][]>([])
   const [currentStock, setCurrentStock] = useState<string>("");
-  const [watchListItems, setWatchListItems] = useState<[string, number, string, string][]>([["AAPL", -1, '0', '0']])
+  // const [watchListItems, setWatchListItems] = useState<[string, number, string, string][]>([["AAPL", -1, '0', '0']])
   const inputRef = useRef<HTMLInputElement>(null);
-  const watchListRef = useRef<HTMLInputElement>(null);
+  // const watchListRef = useRef<HTMLInputElement>(null);
   const numberFormat = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0});
-const APIKEY = '6KFEPWZX4P58N7VR'
+const APIKEY = 'TN4REAKJA1FP8L3N'
 
 const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number, number][]> => {
-  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${ticker}&outputsize=${size}&apikey=${APIKEY}`
+  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&outputsize=${size}&apikey=${APIKEY}`
   try {
     const res = await fetch(url)
     const json:ApiRes = await res.json();
@@ -55,42 +56,6 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
     setData(data);
     setCurrentStock(ticker)
   }
-
-  const addToWatchList = async () => {
-    const stock = watchListRef.current!.value.toUpperCase();
-    const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(stock);
-    setWatchListItems([...watchListItems, [stock, lastPrice, amountChangeStr, percentChangeStr]])
-  }
-
-  const removeFromWatchlist = (stock:string): void => {
-    const newItems = watchListItems.filter(item => item[0] !== stock.toUpperCase())
-    console.log("watchlistitems", newItems)
-    setWatchListItems([...newItems])
-  }
-
-  const getStockWatchListData = async (ticker: string): Promise<[number, string, string]> =>{
-    const data = await getData(ticker, 'compact')
-    const lastPrice = data[data.length - 1][1]
-    const secondLastPrice = data[data.length - 2][1]
-    const amountChange = parseFloat((lastPrice - secondLastPrice).toFixed(2))
-    const amountChangeStr = amountChange >= 0 ? `+${amountChange}` : `${amountChange}`
-    const percentChange = parseFloat((amountChange / secondLastPrice * 100).toFixed(2))
-    const percentChangeStr = percentChange >= 0 ? `(+${percentChange}%)` : `(${percentChange}%)`
-    return [lastPrice, amountChangeStr, percentChangeStr]
-  }
-
-  useEffect(()=>{
-    const updateWatchListData = async() => {
-      for (let i = 0; i < watchListItems.length; i++){
-        const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(watchListItems[i][0])
-        watchListItems[i][1] = lastPrice
-        watchListItems[i][2] = amountChangeStr
-        watchListItems[i][3] = percentChangeStr
-      }
-      setWatchListItems([...watchListItems])
-  }
-  updateWatchListData()
-  }, [])
 
   const options: Highcharts.Options = {
     chart: {
@@ -176,11 +141,11 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
 
   return (
   <div className='container'>
-    <Watchlist watchListRef={watchListRef}
-    addToWatchList={addToWatchList}
-    watchListItems={watchListItems}
+
+<Watchlist 
+    getData={getData}
     updateStockChart={updateStockChart}
-    removeFromWatchList={removeFromWatchlist}></Watchlist>
+    ></Watchlist>
 
   <div className='chartContainer'>
   <form>
