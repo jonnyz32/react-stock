@@ -8,7 +8,7 @@
 //alpha vantage api key 6KFEPWZX4P58N7VR
 // Second api key TN4REAKJA1FP8L3N
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import moment from 'moment';
 import './App.css'
 import { useRef } from 'react';
@@ -16,6 +16,8 @@ import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import HighchartsStk from "highcharts/highstock";
 import Watchlist from './Watchlist';
+import TextField from '@mui/material/TextField/TextField';
+import Button from '@mui/material/Button/Button';
 
 interface ApiRes {
     "Time Series (Daily)": any
@@ -35,6 +37,9 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
   try {
     const res = await fetch(url)
     const json:ApiRes = await res.json();
+    if (!json["Time Series (Daily)"]){
+      throw Error("Couldn't get data")
+    }
     const returnedData: [number, number][] = []
     const keys = Object.keys(json["Time Series (Daily)"]);
     for (let i = keys.length - 1; i >= 0; i--){
@@ -49,6 +54,7 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
     return []
   }
 }
+
 
   const updateStockChart = async (ticker:string)=>{
     const data = await getData(ticker, 'full');
@@ -140,7 +146,25 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
   return (
+    <div className='outerContainer'>
+          <h1>Enter a stock to search</h1>
+    <form className='stockForm'>
+    {/* <input className='stockSearch' ref={inputRef} placeholder='IBM'></input> */}
+    <TextField className='stockSearch' ref={inputRef} id="standard-basic" label="IBM" variant="standard" />
+    {/* <input className='stockSubmit' type='submit' onClick={(e)=>{
+      e.preventDefault()
+      updateStockChart(inputRef.current!.value)
+      }}></input> */}
+      <Button variant="contained" type='submit' onClick={(e)=>{
+      e.preventDefault()
+      // updateStockChart(inputRef.current!.value)
+      updateStockChart((inputRef.current!.children[1].children[0] as HTMLInputElement).value)
+
+      }}>Submit</Button>
+
+  </form>
   <div className='container'>
+   
 
 <Watchlist 
     getData={getData}
@@ -148,14 +172,6 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
     ></Watchlist>
 
   <div className='chartContainer'>
-  <form>
-    <label>Enter your stock</label>
-    <input ref={inputRef} placeholder='IBM'></input>
-    <input type='submit' onClick={(e)=>{
-      e.preventDefault()
-      updateStockChart(inputRef.current!.value)
-      }}></input>
-  </form>
     <HighchartsReact
       highcharts={HighchartsStk}
       constructorType={'stockChart'}
@@ -165,6 +181,8 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
     />
   </div>
   </div>
+    </div>
+    
   );
 };
 

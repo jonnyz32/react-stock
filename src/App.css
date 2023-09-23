@@ -41,7 +41,32 @@
 }
 
 .container {
+  width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  align-items: start;
+  margin-top: 10%;
+}
+
+.outerContainer {
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  padding-left: 10%;
+  padding-right: 10%;
+}
+
+.stockSearch {
+  width: 30%;
+}
+
+.stockForm {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.stockSubmit {
+  flex: 1;
+  height: 2rem;
 }

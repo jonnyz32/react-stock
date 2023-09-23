@@ -20,8 +20,8 @@ const WatchlistItem = (props: WatchListItemProps
     <div className={"watchListItem"}>
         <span onClick={()=>updateStockChart(stock)} className="watchListText">{stock}</span>
         <span className="currentPrice">{price === -1 ? '' : price}</span>
-        {['+', '0'].includes(amountChange[0])  ? <span className="amountChange green">{amountChange}</span>: <span className="amountChange red">{amountChange}</span>}
-        {(percentChange.length >= 2 && percentChange[1] === '+' || percentChange === '0') ? <span className="percentChange green">{percentChange}</span>: <span className="percentChange red">{percentChange}</span>}
+        {amountChange && ['+', '0'].includes(amountChange[0])  ? <span className="amountChange green">{amountChange}</span>: <span className="amountChange red">{amountChange}</span>}
+        {(percentChange && percentChange.length >= 2 && percentChange[1] === '+' || percentChange === '0') ? <span className="percentChange green">{percentChange}</span>: <span className="percentChange red">{percentChange}</span>}
         <button onClick={()=>removeFromWatchlist(stock)}>Remove</button>
         </div>
     )

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 
@@ -11,23 +13,36 @@ interface WatchlistProps {
 }
 const Watchlist = (props: WatchlistProps) => {
   const watchListRef = useRef<HTMLInputElement>(null);
-  const [watchListItems, setWatchListItems] = useState<[string, number, string, string][]>([["AAPL", -1, '0', '0']])
+  const [watchListItems, setWatchListItems] = useState<[string, number, string, string][]>([])
+
+  const updateWatchListData = async(stockArr: [string, number, string, string][]) => {
+    for (let i = 0; i < stockArr.length; i++){
+      const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(stockArr[i][0])
+      stockArr[i][1] = lastPrice
+      stockArr[i][2] = amountChangeStr
+      stockArr[i][3] = percentChangeStr
+    }
+    setWatchListItems(stockArr)
+}
 
   useEffect(()=>{
-    const updateWatchListData = async() => {
-      for (let i = 0; i < watchListItems.length; i++){
-        const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(watchListItems[i][0])
-        watchListItems[i][1] = lastPrice
-        watchListItems[i][2] = amountChangeStr
-        watchListItems[i][3] = percentChangeStr
-      }
-      setWatchListItems([...watchListItems])
+    const stocks = window.localStorage.getItem("stocks")
+    let stockArr : [string, number, string, string][] = []
+    if (stocks){
+       stockArr = stocks?.split(" ")?.map(stock => [stock, -1, '0', '0'])
+    }
+    
+  if (stockArr){
+    updateWatchListData(stockArr)
+    updateStockChart(stockArr[0][0])
+
   }
-  updateWatchListData()
+
   }, [])
 
   const getStockWatchListData = async (ticker: string): Promise<[number, string, string]> =>{
     const data = await props.getData(ticker, 'compact')
+    if (data.length === 0) return Promise.resolve([]);
     const lastPrice = data[data.length - 1][1]
     const secondLastPrice = data[data.length - 2][1]
     const amountChange = parseFloat((lastPrice - secondLastPrice).toFixed(2))
@@ -40,12 +55,18 @@ const Watchlist = (props: WatchlistProps) => {
     const stock = watchListRef.current!.value.toUpperCase();
     const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(stock);
     setWatchListItems([...watchListItems, [stock, lastPrice, amountChangeStr, percentChangeStr]])
+    const currentStocks = window.localStorage.getItem("stocks") ?? ""
+    if (lastPrice){
+      const newStocks = currentStocks ? currentStocks + ` ${stock}` : stock
+      window.localStorage.setItem("stocks", newStocks)
+    }
   }
 
   const removeFromWatchlist = (stock:string): void => {
     const newItems = watchListItems.filter(item => item[0] !== stock.toUpperCase())
-    console.log("watchlistitems", newItems)
     setWatchListItems([...newItems])
+    window.localStorage.setItem("stocks", newItems.map(item => item[0]).join(" "))
+    
   }
 
     const updateStockChart = props.updateStockChart;
