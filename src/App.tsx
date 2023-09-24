@@ -8,7 +8,7 @@
 //alpha vantage api key 6KFEPWZX4P58N7VR
 // Second api key TN4REAKJA1FP8L3N
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import moment from 'moment';
 import './App.css'
 import { useRef } from 'react';
