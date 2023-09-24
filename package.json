@@ -32,5 +32,6 @@
     "eslint-plugin-react-refresh": "^0.4.1",
     "typescript": "^5.0.2",
     "vite": "^4.4.0"
-  }
+  },
+  "engines": { "node": "20.0.0", "npm": "9.6.4" }
 }
