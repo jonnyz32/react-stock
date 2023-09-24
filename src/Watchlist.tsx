@@ -17,7 +17,10 @@ const Watchlist = (props: WatchlistProps) => {
 
   const updateWatchListData = async(stockArr: [string, number, string, string][]) => {
     for (let i = 0; i < stockArr.length; i++){
-      const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(stockArr[i][0])
+      const data = await getStockWatchListData(stockArr[i][0])
+      if (data.length === 0) return;
+      const [lastPrice, amountChangeStr, percentChangeStr] = data;
+
       stockArr[i][1] = lastPrice
       stockArr[i][2] = amountChangeStr
       stockArr[i][3] = percentChangeStr
@@ -40,7 +43,7 @@ const Watchlist = (props: WatchlistProps) => {
 
   }, [])
 
-  const getStockWatchListData = async (ticker: string): Promise<[number, string, string]> =>{
+  const getStockWatchListData = async (ticker: string): Promise<[number, string, string] | []> =>{
     const data = await props.getData(ticker, 'compact')
     if (data.length === 0) return Promise.resolve([]);
     const lastPrice = data[data.length - 1][1]
@@ -53,7 +56,10 @@ const Watchlist = (props: WatchlistProps) => {
   }
   const addToWatchList = async () => {
     const stock = watchListRef.current!.value.toUpperCase();
-    const [lastPrice, amountChangeStr, percentChangeStr] = await getStockWatchListData(stock);
+    const data =  await getStockWatchListData(stock);
+    if (data.length === 0) return;
+    const [lastPrice, amountChangeStr, percentChangeStr] = data;
+
     setWatchListItems([...watchListItems, [stock, lastPrice, amountChangeStr, percentChangeStr]])
     const currentStocks = window.localStorage.getItem("stocks") ?? ""
     if (lastPrice){
