@@ -8,15 +8,14 @@ const __dirname = path.resolve();
 
 
 // app.use(sslRedirect())
-// app.use(express.static(__dirname + '/dist'));
-app.use(express.static(__dirname));
-
+app.use(express.static(__dirname + '/dist'));
 
 
 app.get('/*', function(req,res) {
-    console.log("sending file: ", __dirname+ "/index.html")
+    console.log("sending file: ", __dirname+
+    '/dist/index.html')
 res.sendFile(path.join(__dirname+
-'/index.html'));});
+'/dist/index.html'));});
 const port = process.env.PORT || 8080
 app.listen(port, ()=>{
   console.log(`Listening on port ${port}`)

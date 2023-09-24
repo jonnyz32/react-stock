@@ -35,7 +35,7 @@ const Watchlist = (props: WatchlistProps) => {
        stockArr = stocks?.split(" ")?.map(stock => [stock, -1, '0', '0'])
     }
     
-  if (stockArr){
+  if (stockArr.length > 0){
     updateWatchListData(stockArr)
     updateStockChart(stockArr[0][0])
 
