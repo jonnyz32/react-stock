@@ -18,6 +18,7 @@ import HighchartsStk from "highcharts/highstock";
 import Watchlist from './Watchlist';
 import TextField from '@mui/material/TextField/TextField';
 import Button from '@mui/material/Button/Button';
+import { environment } from './environments';
 
 // interface ApiRes {
 //     "Time Series (Daily)": any
@@ -35,7 +36,7 @@ const App = (props: HighchartsReact.Props) => {
 const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number, number][]> => {
   let json:[number, number][] = []
   try{
-    const res = await fetch(`http://localhost:8080/getData/${ticker}/${size}`)
+    const res = await fetch(`${environment.baseUrl}/getData/${ticker}/${size}`)
     json = await res.json() as [number, number][]
 
     console.log("json: ", json)
