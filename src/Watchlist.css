@@ -4,3 +4,10 @@
     padding: 2rem 2rem 2rem 0rem;
     width: 40%;
   }
+
+  /* Apply column direction when the screen width is less than 1000px (adjust as needed) */
+@media screen and (max-width: 1000px) {
+  .watchlist {
+    width: 100%;
+  }
+}

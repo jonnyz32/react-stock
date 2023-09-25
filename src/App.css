@@ -47,6 +47,12 @@
   align-items: start;
   margin-top: 10%;
 }
+/* Apply column direction when the screen width is less than 1000px (adjust as needed) */
+@media screen and (max-width: 1000px) {
+  .container {
+    flex-direction: column;
+  }
+}
 
 .outerContainer {
   display: flex;
@@ -70,3 +76,15 @@
   flex: 1;
   height: 2rem;
 }
+
+.chartContainer {
+  width: 50%;
+  /* aspect-ratio: '1/1'; */
+}
+
+  /* Apply column direction when the screen width is less than 1000px (adjust as needed) */
+  @media screen and (max-width: 1000px) {
+    .chartContainer {
+      width: 100%;
+    }
+  }

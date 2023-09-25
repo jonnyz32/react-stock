@@ -78,8 +78,8 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
 
   const options: Highcharts.Options = {
     chart: {
-      height: 600,
-      width: 600
+      height: '100%'
+      // width: 600
     },
     yAxis: [{
       opposite: false,  
