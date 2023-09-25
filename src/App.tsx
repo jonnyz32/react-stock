@@ -19,9 +19,9 @@ import Watchlist from './Watchlist';
 import TextField from '@mui/material/TextField/TextField';
 import Button from '@mui/material/Button/Button';
 
-interface ApiRes {
-    "Time Series (Daily)": any
-}
+// interface ApiRes {
+//     "Time Series (Daily)": any
+// }
 
 const App = (props: HighchartsReact.Props) => {
   const [data, setData] = useState<[number, number][]>([])
@@ -30,7 +30,7 @@ const App = (props: HighchartsReact.Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   // const watchListRef = useRef<HTMLInputElement>(null);
   const numberFormat = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0});
-const APIKEY = 'TN4REAKJA1FP8L3N'
+// const APIKEY = 'TN4REAKJA1FP8L3N'
 
 const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number, number][]> => {
   let json:[number, number][] = []
