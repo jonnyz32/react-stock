@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "cp ./src/environments.prod.ts ./src/environments.prod.ts && node server.js",
+    "start": "cp ./src/environments.prod.ts ./src/environments.ts && node server.js",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
