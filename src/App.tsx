@@ -33,27 +33,39 @@ const App = (props: HighchartsReact.Props) => {
 const APIKEY = 'TN4REAKJA1FP8L3N'
 
 const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number, number][]> => {
-  const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&outputsize=${size}&apikey=${APIKEY}`
-  try {
-    const res = await fetch(url)
-    const json:ApiRes = await res.json();
-    if (!json["Time Series (Daily)"]){
-      throw Error("Couldn't get data")
-    }
-    const returnedData: [number, number][] = []
-    const keys = Object.keys(json["Time Series (Daily)"]);
-    for (let i = keys.length - 1; i >= 0; i--){
-      const dateObject = new Date(keys[i]);
-      const timestamp = Math.floor(dateObject.getTime());
-      returnedData.push([timestamp, parseFloat(json["Time Series (Daily)"][keys[i]]["4. close"])])
-    }
-    return returnedData;
+  let json:[number, number][] = []
+  try{
+    const res = await fetch(`http://localhost:8080/getData/${ticker}/${size}`)
+    json = await res.json() as [number, number][]
+
+    console.log("json: ", json)
 
   } catch(e){
-    console.log("Caught error: ", e)
-    return []
+    console.log("Caught error", e)
   }
-}
+
+  // const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&outputsize=${size}&apikey=${APIKEY}`
+  // try {
+  //   const res = await fetch(url)
+  //   const json:ApiRes = await res.json();
+  //   if (!json["Time Series (Daily)"]){
+  //     throw Error("Couldn't get data")
+  //   }
+  //   const returnedData: [number, number][] = []
+  //   const keys = Object.keys(json["Time Series (Daily)"]);
+  //   for (let i = keys.length - 1; i >= 0; i--){
+  //     const dateObject = new Date(keys[i]);
+  //     const timestamp = Math.floor(dateObject.getTime());
+  //     returnedData.push([timestamp, parseFloat(json["Time Series (Daily)"][keys[i]]["4. close"])])
+  //   }
+    return Promise.resolve(json);
+
+  } 
+  // catch(e){
+  //   console.log("Caught error: ", e)
+  //   return []
+  // }
+// }
 
 
   const updateStockChart = async (ticker:string)=>{
