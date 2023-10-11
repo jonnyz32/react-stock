@@ -55,6 +55,9 @@
 }
 
 .outerContainer {
+  >h1 {
+    text-align: center;
+  }
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,13 +66,43 @@
 }
 
 .stockSearch {
-  width: 30%;
+  grid-area:search;
+  /* width: 30%; */
 }
 
 .stockForm {
+  width: 30%;
+  display: grid;
+  grid-template-areas: 
+       "search button"
+       "options      .";
+  /* justify-content: center; */
+}
+
+@media  screen and (max-width:500px){
+  .stockForm {
   width: 100%;
-  display: flex;
-  justify-content: center;
+  /* justify-content: center; */
+  
+}
+}
+
+.menuItemsOuterContainer {
+  position: relative;
+  grid-area: options;
+  box-shadow: #888;
+  z-index: 1;
+
+}
+
+.menuItemsInnerContainer {
+  position: absolute;
+  width: 100%;
+  background-color: white;
+}
+
+.getStock {
+  grid-area: button;
 }
 
 .stockSubmit {
@@ -80,6 +113,18 @@
 .chartContainer {
   width: 50%;
   /* aspect-ratio: '1/1'; */
+}
+
+.stockMenuItem {
+  width: 100%;
+  border-bottom: 1px solid black;
+}
+.stockMenuItem:hover{
+  background-color: lightblue !important;
+}
+.inputContainer {
+  display: flex;
+  flex-direction: column;
 }
 
   /* Apply column direction when the screen width is less than 1000px (adjust as needed) */
