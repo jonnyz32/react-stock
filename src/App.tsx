@@ -12,7 +12,6 @@ import { useState, useMemo } from 'react'
 import moment from 'moment';
 import './App.css'
 import { useRef } from 'react';
-import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import HighchartsStk from "highcharts/highstock";
 import Watchlist from './Watchlist';
@@ -24,7 +23,6 @@ import {nasdaq} from './../nasdaq';
 // import {amex} from '../amex';
 // import {tsx} from './../tsx';
 import {nyse} from './../nyse';
-import { Autocomplete, MenuItem } from '@mui/material';
 
 
 
@@ -35,7 +33,7 @@ import { Autocomplete, MenuItem } from '@mui/material';
 
 
 
-const App = (props: HighchartsReact.Props) => {
+const App = (props: any) => {
   const trie = new Trie();
   const [currentStock, setCurrentStock] = useState<string>("");
   const [data, setData] = useState<[number, number][]>([])
@@ -75,7 +73,7 @@ const App = (props: HighchartsReact.Props) => {
       yAxis: [{
         opposite: false,  
         labels: {
-          formatter: function (this) {
+          formatter: function (this: {value}) {
             return numberFormat.format(this.value as number) 
           },
         },
@@ -92,7 +90,7 @@ const App = (props: HighchartsReact.Props) => {
     
       tooltip: {
         shared: true,
-        formatter: function (this) {
+        formatter: function (this:{x,y}) {
           return numberFormat.format(this.y as number) +  '</b><br/>' + moment(this.x).format('MMMM Do YYYY, h:mm')
         }
       },
@@ -219,7 +217,7 @@ const getData = async (ticker:string, size: 'full' | 'compact'):Promise<[number,
   }
 
   
-  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+  const chartComponentRef = useRef<any>(null);
 
   return (
     <div className='outerContainer'>
